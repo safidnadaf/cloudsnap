@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CloudSnap – Multimedia Sharing Platform</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    /* NAVBAR */
+    nav {
+      background: #1a1a1a;
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #00bcd4;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #00bcd4;
+      letter-spacing: 2px;
+    }
+    .logo span { color: #fff; }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+    }
+    nav ul li a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav ul li a:hover { color: #00bcd4; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #0d1b2a, #1a3a4a);
+      padding: 3rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid #1e3a4a;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .hero h1 span { color: #00bcd4; }
+    .hero p {
+      color: #90a4ae;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    /* UPLOAD SECTION */
+    .upload-section {
+      background: #1a1a1a;
+      border: 2px dashed #00bcd4;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      margin: 2rem auto;
+      text-align: center;
+    }
+    .upload-section h2 {
+      color: #00bcd4;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+    .upload-section input[type="file"],
+    .upload-section input[type="text"],
+    .upload-section textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      background: #0f0f0f;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #f0f0f0;
+      font-size: 0.95rem;
+    }
+    .upload-section input[type="file"] {
+      border: 1px dashed #00bcd4;
+      cursor: pointer;
+    }
+    .btn {
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0.5rem;
+    }
+    .btn-primary {
+      background: #00bcd4;
+      color: #000;
+    }
+    .btn-primary:hover { background: #0097a7; }
+    .btn-danger {
+      background: #e53935;
+      color: #fff;
+    }
+    .btn-danger:hover { background: #b71c1c; }
+    .btn-warning {
+      background: #ff8f00;
+      color: #000;
+    }
+    .btn-warning:hover { background: #e65100; }
+
+    /* STATUS MESSAGE */
+    #status-msg {
+      max-width: 600px;
+      margin: 0 auto 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+      font-weight: 600;
+    }
+    #status-msg.success { background: #1b5e20; color: #a5d6a7; display: block; }
+    #status-msg.error   { background: #b71c1c; color: #ffcdd2; display: block; }
+    #status-msg.loading { background: #0d47a1; color: #90caf9; display: block; }
+
+    /* GALLERY */
+    .gallery-section {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .gallery-header h2 {
+      font-size: 1.5rem;
+      color: #00bcd4;
+    }
+    .search-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #f0f0f0;
+      font-size: 0.95rem;
+    }
+    .filter-btns { display: flex; gap: 0.5rem; }
+    .filter-btn {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: #00bcd4;
+      color: #000;
+      border-color: #00bcd4;
+    }
+
+    /* MEDIA GRID */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .media-card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .media-card:hover {
+      transform: translateY(-4px);
+      border-color: #00bcd4;
+    }
+    .media-thumb {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #0d1b2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    .media-thumb img, .media-thumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .media-info {
+      padding: 0.75rem 1rem;
+    }
+    .media-info h3 {
+      font-size: 0.95rem;
+      color: #fff;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .media-info p {
+      font-size: 0.8rem;
+      color: #90a4ae;
+      margin-bottom: 0.75rem;
+    }
+    .media-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .media-actions button {
+      flex: 1;
+      padding: 0.4rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .edit-btn { background: #1565c0; color: #fff; }
+    .edit-btn:hover { background: #0d47a1; }
+    .del-btn { background: #c62828; color: #fff; }
+    .del-btn:hover { background: #7f0000; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #555;
+    }
+    .empty-state .icon { font-size: 4rem; margin-bottom: 1rem; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 480px;
+      border: 1px solid #00bcd4;
+    }
+    .modal h3 {
+      color: #00bcd4;
+      margin-bottom: 1rem;
+    }
+    .modal input, .modal textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      background: #0f0f0f;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #f0f0f0;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* LOADING SPINNER */
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 3px solid #333;
+      border-top-color: #00bcd4;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* PROGRESS BAR */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #333;
+      border-radius: 3px;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .progress-bar .progress {
+      height: 100%;
+      background: #00bcd4;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #444;
+      font-size: 0.85rem;
+      border-top: 1px solid #1a1a1a;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">☁ Cloud<span>Snap</span></div>
+  <ul>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#upload">Upload</a></li>
+    <li><a href="#" onclick="loadMedia()">🔄 Refresh</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Share Your World with <span>CloudSnap</span></h1>
+  <p>Upload, manage and share your images and videos — powered by Microsoft Azure</p>
+</div>
+
+<!-- STATUS MESSAGE -->
+<div id="status-msg"></div>
+
+<!-- UPLOAD SECTION -->
+<div class="upload-section" id="upload">
+  <h2>📤 Upload Media</h2>
+  <input type="text" id="upload-userid" placeholder="Your User ID (e.g. user123)" />
+  <input type="file" id="upload-file" accept="image/*,video/*" />
+  <textarea id="upload-desc" rows="2" placeholder="Description (optional)"></textarea>
+  <div class="progress-bar" id="progress-bar">
+    <div class="progress" id="progress"></div>
+  </div>
+  <button class="btn btn-primary" onclick="uploadMedia()">☁ Upload to CloudSnap</button>
+</div>
+
+<!-- GALLERY SECTION -->
+<div class="gallery-section" id="gallery">
+  <div class="gallery-header">
+    <h2>📸 My Media Gallery</h2>
+    <button class="btn btn-primary" onclick="loadMedia()">🔄 Load Media</button>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="🔍 Search media..." oninput="filterMedia()" />
+    <div class="filter-btns">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('image', this)">Images</button>
+      <button class="filter-btn" onclick="setFilter('video', this)">Videos</button>
+    </div>
+  </div>
+  <div class="media-grid" id="media-grid">
+    <div class="empty-state">
+      <div class="icon">☁</div>
+      <p>Click "Load Media" to fetch your files</p>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <h3>✏️ Edit Media</h3>
+    <input type="hidden" id="edit-id" />
+    <input type="text" id="edit-filename" placeholder="Filename" />
+    <textarea id="edit-desc" rows="3" placeholder="Description"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveEdit()">💾 Save</button>
+      <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  ☁ CloudSnap — Built with Microsoft Azure | Blob Storage · Cosmos DB · Logic Apps · App Service
+</footer>
+
+<script>
+  // ── Logic App URLs ──────────────────────────────────────
+  const API = {
+    GET:    "https://prod-28.spaincentral.logic.azure.com:443/workflows/6008bc1a9fa3457fba66146f6f61ee29/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=elXCQzzrkp9zKmi4AiLug4htl1u0Igh8nMsyqkoJFJg",
+    POST:   "https://prod-31.spaincentral.logic.azure.com:443/workflows/8418103de5864950a54dfe697e0b2840/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=0Zz2nwNFOoyOaWGuVcG0FBti7UaP_7YYfgljdZ235oM",
+    PUT:    "https://prod-18.spaincentral.logic.azure.com:443/workflows/6adb3a14c3fb4cae974613d65262e16d/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=hDygBdmHcLnrsEshUDE2ntQMEOy-C5K_aEwaVQ9NQ1M",
+    DELETE: "https://prod-27.spaincentral.logic.azure.com:443/workflows/112d19077af64d2e8ec1176cb2829de7/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=7O-cW0ozMzxDmeDoWMezoaNVRGNGFZiyaKZW3vxgV9Q"
+  };
+
+  let allMedia = [];
+  let currentFilter = 'all';
+
+  // ── Status messages ─────────────────────────────────────
+  function showStatus(msg, type) {
+    const el = document.getElementById('status-msg');
+    el.className = type;
+    el.innerHTML = type === 'loading' ? `<span class="spinner"></span>${msg}` : msg;
+    if (type !== 'loading') setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+
+  // ── UPLOAD ───────────────────────────────────────────────
+  async function uploadMedia() {
+    const file     = document.getElementById('upload-file').files[0];
+    const userId   = document.getElementById('upload-userid').value.trim() || 'anonymous';
+    const desc     = document.getElementById('upload-desc').value.trim();
+
+    if (!file) { showStatus('❌ Please select a file first!', 'error'); return; }
+
+    showStatus('Uploading your file...', 'loading');
+
+    // Show progress bar
+    const bar = document.getElementById('progress-bar');
+    const prog = document.getElementById('progress');
+    bar.style.display = 'block';
+    prog.style.width = '30%';
+
+    // Convert file to base64
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      prog.style.width = '60%';
+      const base64 = e.target.result.split(',')[1];
+
+      try {
+        const res = await fetch(API.POST, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: file.name,
+            content: base64,
+            mediaType: file.type.startsWith('video') ? 'video' : 'image',
+            userId: userId,
+            description: desc
+          })
+        });
+
+        prog.style.width = '100%';
+        setTimeout(() => { bar.style.display = 'none'; prog.style.width = '0%'; }, 1000);
+
+        if (res.ok || res.status === 200 || res.status === 201 || res.status === 202) {
+          showStatus('✅ File uploaded successfully!', 'success');
+          document.getElementById('upload-file').value = '';
+          document.getElementById('upload-desc').value = '';
+          setTimeout(() => loadMedia(), 1500);
+        } else {
+          showStatus(`❌ Upload failed (${res.status}). Check your Logic App.`, 'error');
+        }
+      } catch (err) {
+        showStatus('❌ Upload error: ' + err.message, 'error');
+        bar.style.display = 'none';
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── GET / LOAD MEDIA ─────────────────────────────────────
+  async function loadMedia() {
+    showStatus('Loading your media...', 'loading');
+    try {
+      const res = await fetch(API.GET, { method: 'GET' });
+      const data = await res.json();
+
+      // Handle different response structures
+      allMedia = Array.isArray(data) ? data :
+                 data.value ? data.value :
+                 data.Documents ? data.Documents : [];
+
+      showStatus(`✅ Loaded ${allMedia.length} items`, 'success');
+      renderGallery();
+    } catch (err) {
+      showStatus('❌ Could not load media: ' + err.message, 'error');
+      renderGallery([]);
+    }
+  }
+
+  // ── RENDER GALLERY ────────────────────────────────────────
+  function renderGallery() {
+    const grid = document.getElementById('media-grid');
+    const search = document.getElementById('search-input').value.toLowerCase();
+
+    let filtered = allMedia.filter(item => {
+      const matchFilter = currentFilter === 'all' || (item.mediaType || '').includes(currentFilter);
+      const matchSearch = !search || (item.filename || '').toLowerCase().includes(search) ||
+                          (item.description || '').toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No media found</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(item => {
+      const isVideo = (item.mediaType || '').includes('video');
+      const url = item.blobUrl || item.BlobUrl || '';
+      const name = item.filename || item.FileName || 'Unknown';
+      const desc = item.description || item.Description || '';
+      const id = item.id || item.Id || '';
+
+      const thumb = url
+        ? isVideo
+          ? `<video src="${url}" class="media-thumb"></video>`
+          : `<img src="${url}" class="media-thumb" onerror="this.parentElement.innerHTML='🖼️'" />`
+        : `<div class="media-thumb">${isVideo ? '🎥' : '🖼️'}</div>`;
+
+      return `
+        <div class="media-card">
+          ${thumb}
+          <div class="media-info">
+            <h3 title="${name}">${name}</h3>
+            <p>${desc || (isVideo ? '🎥 Video' : '🖼️ Image')}</p>
+            <div class="media-actions">
+              <button class="edit-btn" onclick="openEdit('${id}', '${name}', '${desc}')">✏️ Edit</button>
+              <button class="del-btn" onclick="deleteMedia('${id}', '${name}')">🗑️ Delete</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── FILTER & SEARCH ───────────────────────────────────────
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGallery();
+  }
+
+  function filterMedia() { renderGallery(); }
+
+  // ── EDIT ──────────────────────────────────────────────────
+  function openEdit(id, filename, desc) {
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-filename').value = filename;
+    document.getElementById('edit-desc').value = desc;
+    document.getElementById('edit-modal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('edit-modal').classList.remove('active');
+  }
+
+  async function saveEdit() {
+    const id       = document.getElementById('edit-id').value;
+    const filename = document.getElementById('edit-filename').value;
+    const desc     = document.getElementById('edit-desc').value;
+
+    showStatus('Saving changes...', 'loading');
+    closeModal();
+
+    try {
+      const res = await fetch(API.PUT, {
+        method: 'POST', // Logic Apps use POST for all triggers
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, filename, description: desc, updatedAt: new Date().toISOString() })
+      });
+
+      if (res.ok || res.status === 200 || res.status === 202) {
+        showStatus('✅ Updated successfully!', 'success');
+        setTimeout(() => loadMedia(), 1500);
+      } else {
+        showStatus(`❌ Update failed (${res.status})`, 'error');
+      }
+    } catch (err) {
+      showStatus('❌ Update error: ' + err.message, 'error');
+    }
+  }
+
+  // ── DELETE ────────────────────────────────────────────────
+  async function deleteMedia(id, filename) {
+    if (!confirm(`Are you sure you want to delete "${filename}"?`)) return;
+
+    showStatus('Deleting...', 'loading');
+
+    try {
+      const res = await fetch(API.DELETE, {
+        method: 'POST', // Logic Apps use POST for all triggers
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, filename })
+      });
+
+      if (res.ok || res.status === 200 || res.status === 202) {
+        showStatus('✅ Deleted successfully!', 'success');
+        setTimeout(() => loadMedia(), 1500);
+      } else {
+        showStatus(`❌ Delete failed (${res.status})`, 'error');
+      }
+    } catch (err) {
+      showStatus('❌ Delete error: ' + err.message, 'error');
+    }
+  }
+
+  // Close modal on overlay click
+  document.getElementById('edit-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>

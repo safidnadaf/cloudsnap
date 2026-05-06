@@ -1,0 +1,9 @@
+{
+  "name": "cloudsnap",
+  "version": "1.0.0",
+  "description": "CloudSnap Multimedia Sharing Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
